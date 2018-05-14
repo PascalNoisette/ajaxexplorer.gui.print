@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!--
+	 *
+	 * Copyright (C) 2012 Pascal Noisette
+	 *
+	 * This file is part of gui.print an Ajaxplorer plugin
+	 *
+	 * This program is free software; you can redistribute it and/or modify
+	 * it under the terms of the GNU General Public License as published by
+	 * the Free Software Foundation; either version 2 of the License, or
+	 * (at your option) any later version.
+	 * 
+	 * This program is distributed in the hope that it will be useful,
+	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 * GNU Library General Public License for more details.
+	 * 
+	 * You should have received a copy of the GNU General Public License
+	 * along with this program; if not, write to the Free Software
+	 * Foundation, Inc., 51 Franklin Street, Fifth Floor Boston, MA 02110-1301,  USA
+	 *
+	-->
+<ajxp_plugin id="gui.print" label="CONF_MESSAGE[Print a file]" description="CONF_MESSAGE[Send a file to the server default printer]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.ajaxplorer/ajxp_registry.xsd">
+	<class_definition filename="plugins/gui.print/class.Printer.php" classname="Printer"/>
+	<client_settings>
+		<resources>
+		<i18n namespace="gui_print" path="plugins/gui.print/resources/i18n" />
+		<img_library alias="gui_print_images" path="plugins/gui.print/resources/images" />
+	    	<css file="plugins/gui.print/resources/style.gui.print.css" autoload="true"/>
+		</resources>	
+	</client_settings>
+	<registry_contributions>
+		<actions>
+			<!--one action to display in content menu when selection empty-->
+			<action name="print">
+				<gui text="gui_print.3" title="gui_print.3" src="gui_print_images/ICON_SIZE/pdf.png" hasAccessKey="false">
+					<context selection="true" dir="false" recycle="hidden"
+						actionBar="true" contextMenu="true" infoPanel="true"
+						actionBarGroup="get" inZip="false">
+					</context>
+					<rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""></rightsContext>
+					<selectionContext dir="false" file="true" recycle="false" unique="true"  multipleOnly="false"  allowedMimes="*" behaviour="hidden"></selectionContext>
+				</gui>
+				
+				<processing>
+					<clientCallback prepareModal="true" dialogOpenForm="print">
+						<dialogOnOpen><![CDATA[    
+							$('print_filename').innerHTML = ajaxplorer.getUserSelection().getUniqueNode().getLabel();
+						]]></dialogOnOpen>
+						<dialogOnComplete><![CDATA[    
+						var bgManager = ajaxplorer.actionBar.bgManager;
+						bgManager.queueAction("print", new Hash({
+							file:ajaxplorer.getUserSelection().getUniqueNode().getPath()
+						}), "");
+						bgManager.next();
+						hideLightBox(true);
+					    	]]></dialogOnComplete>
+					</clientCallback>
+					<clientForm id="print"><![CDATA[
+					<div id="print" action="print" box_width="320">
+					AJXP_MESSAGE[gui_print.4] <span id="print_filename"/> ?
+					</div>
+					]]></clientForm>
+					<serverCallback methodName="printAction"></serverCallback>
+				</processing>
+			</action>
+		</actions>			
+	</registry_contributions>				
+</ajxp_plugin>
